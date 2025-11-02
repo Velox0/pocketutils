@@ -2,5 +2,6 @@
 Name=Discover
 Exec=/usr/bin/discover "%u"
 Type=Application
-Terminal=true
+NoDisplay=true
+Terminal=false
 MimeType=x-scheme-handler/discover;
