@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Discover Network Scanner</title>
+    <style>
+      body {
+        font-family: monospace;
+        background: #111;
+        color: #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      input,
+      button {
+        font-family: inherit;
+        background: #1a1a1a;
+        color: #8f8;
+        border: 1px solid #333;
+        padding: 8px 12px;
+        margin: 8px;
+        border-radius: 6px;
+        outline: none;
+      }
+      button:hover {
+        background: #222;
+        cursor: pointer;
+      }
+      button:active {
+        background: #2a2a2a;
+      }
+      #output {
+        margin-top: 20px;
+        white-space: pre-wrap;
+        color: #8f8;
+        max-width: 600px;
+        max-height: 300px;
+        overflow-y: auto;
+        text-align: left;
+        padding: 10px;
+        border: 1px solid #333;
+        border-radius: 6px;
+        background: #0a0a0a;
+      }
+      .ip-span,
+      .ip-link {
+        display: inline-block;
+        background: #2a2a2a;
+        color: #afffaf;
+        margin: 3px;
+        padding: 3px 6px;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+      .ip-link:hover {
+        background: #3a3a3a;
+        text-decoration: underline;
+      }
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Discover Network Scanner</h2>
+    <label for="port">Port:</label>
+    <input
+      type="number"
+      id="port"
+      placeholder="e.g. 3000"
+      value="3000"
+      min="1"
+      max="65535"
+    />
+    <button id="scan">Scan Network</button>
+    <div id="output"></div>
+    <script>
+      const btn = document.getElementById("scan");
+      const output = document.getElementById("output");
+
+      // Reserved ports (non-clickable) — exclude 80 intentionally
+      const reservedPorts = new Set([
+        20, 21, 22, 23, 25, 53, 67, 68, 69, 110, 123, 135, 139, 143, 161, 162,
+        389, 443, 445, 465, 514, 587, 636, 989, 990, 993, 995,
+      ]);
+
+      btn.onclick = async () => {
+        const port = parseInt(document.getElementById("port").value.trim());
+        if (!port) {
+          output.textContent = "⚠️ Please enter a port number.";
+          return;
+        }
+
+        const uri = `discover://?serve=true&port=${port}`;
+        console.log("Triggering URI:", uri);
+        output.textContent = `🔍 Scanning network for servers on port ${port}...\n`;
+
+        // trigger the registered app
+        window.location.href = uri;
+
+        // wait for app to scan and start server
+        await new Promise((r) => setTimeout(r, 2000));
+
+        output.textContent += "⏳ Fetching discovered IPs...\n";
+
+        try {
+          const res = await fetch("http://localhost:7370/getIP", {
+            cache: "no-store",
+          });
+
+          if (res.ok) {
+            const ips = await res.json();
+
+            if (Array.isArray(ips) && ips.length > 0) {
+              // Clear and print summary as text node (so links append correctly)
+              output.textContent = `✅ Found ${ips.length} server${
+                ips.length > 1 ? "s" : ""
+              }:\n\n`;
+
+              ips.forEach((ip) => {
+                if (!reservedPorts.has(port)) {
+                  const link = document.createElement("a");
+                  link.href = `http://${ip}`;
+                  link.target = "_blank";
+                  link.rel = "noopener noreferrer";
+                  link.className = "ip-link";
+                  link.textContent = ip;
+                  output.appendChild(link);
+                } else {
+                  const span = document.createElement("span");
+                  span.className = "ip-span";
+                  span.textContent = ip;
+                  output.appendChild(span);
+                }
+              });
+            } else {
+              output.textContent += "\n❌ No servers found.\n";
+            }
+          } else {
+            output.textContent += "\n❌ Failed to get IPs.\n";
+          }
+        } catch (err) {
+          output.textContent += `\n❌ Error: ${err.message}\n`;
+        }
+      };
+    </script>
+  </body>
+</html>

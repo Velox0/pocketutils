@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Discover
+Exec=/usr/bin/discover "%u"
+Type=Application
+Terminal=true
+MimeType=x-scheme-handler/discover;
