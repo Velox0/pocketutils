@@ -1,5 +1,5 @@
 BUILD_DIR=./build
-DISCOVERY_SRC=./cmd/discovery_tool
+DISCOVERY_SRC=./cmd/discover
 DISCOVERY_BIN=$(BUILD_DIR)/discover
 DISCOVERY_DESKTOP_FILE=$(HOME)/.local/share/applications/discover.desktop
 
