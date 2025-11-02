@@ -31,3 +31,8 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+.vscode/*
+
+# Built Visual Studio Code Extensions
+*.vsix
