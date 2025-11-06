@@ -19,7 +19,7 @@ const (
 	DefaultScanPort  = 3000
 	DefaultAPIPort   = 7370
 	ScanTimeout      = 1 * time.Second
-	MaxAPIRequests   = 3
+	MaxAPIRequests   = 1
 	APIServerTimeout = 5 * time.Second
 	ShutdownDelay    = 100 * time.Millisecond
 	ShutdownTimeout  = 1 * time.Second
@@ -33,25 +33,31 @@ func main() {
 	apiPort := DefaultAPIPort
 	serveAPI := false
 
-	// --- parse discover:// URI if provided ---
+	// --- Argument Parsing ---
 	if len(os.Args) > 1 {
 		arg := strings.Trim(os.Args[1], `"'`)
-		if strings.HasPrefix(arg, "discover://") {
-			u, err := url.Parse(arg)
-			if err == nil {
-				if p := u.Query().Get("port"); p != "" {
-					if val, err := strconv.Atoi(p); err == nil {
-						scanPort = val
-					}
+
+		// Try to parse as discover:// URI
+		u, err := url.Parse(arg)
+		if err == nil && u.Scheme == "discover" {
+			if p := u.Query().Get("port"); p != "" {
+				if val, err := strconv.Atoi(p); err == nil {
+					scanPort = val
 				}
-				if s := u.Query().Get("serve"); s == "true" {
-					serveAPI = true
+			}
+			if s := u.Query().Get("serve"); s == "true" {
+				serveAPI = true
+			}
+			if ap := u.Query().Get("apiPort"); ap != "" {
+				if val, err := strconv.Atoi(ap); err == nil {
+					apiPort = val
 				}
-				if ap := u.Query().Get("apiPort"); ap != "" {
-					if val, err := strconv.Atoi(ap); err == nil {
-						apiPort = val
-					}
-				}
+			}
+		} else {
+			// Fallback to CLI-style port number if not a valid URI
+			if val, err := strconv.Atoi(arg); err == nil {
+				scanPort = val
+				// serveAPI remains false for CLI mode
 			}
 		}
 	}
