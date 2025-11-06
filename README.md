@@ -4,5 +4,5 @@
 
 <!-- ### utils -->
 
-- [void](./cmd/void/README.md) - eats command stdout and stderr
-- [discover](./cmd/discover/README.md) - discover open ports on local subnet
+- [void](./cmd/void/) - eats command stdout and stderr
+- [discover](./cmd/discover/) - discover open ports on local subnet

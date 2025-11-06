@@ -13,10 +13,12 @@ make register_discovery
 
 ## usage
 
+### cli
+
+```bash
+discover 8000 # Discovers servers at port 8000 on local network
+```
+
 ### web
 
 visit [web interface](https://velox0.com/static/discover.html)
-
-> ### cli
->
-> not implemented yet
