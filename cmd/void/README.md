@@ -23,6 +23,6 @@ go build -o ./build ./cmd/void
 
 ## installation
 
-```
+```bash
 sudo mv ./build/void /usr/bin/
 ```
